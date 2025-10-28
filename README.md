@@ -1,4 +1,4 @@
-# 🚀 MAANG Internship Quest Tracker
+# 🚀 Artifical Intelligence / Machine Learning Roadmap +  Quest Tracker
 
 > A comprehensive, gamified progress tracking system for aspiring ML Engineers preparing for MAANG (Meta, Amazon, Apple, Netflix, Google) internships and full-time positions.
 
