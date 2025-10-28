@@ -254,7 +254,7 @@ MAANG-Internship-Quest-Tracker/
 ├── auth.html              # Legacy authentication page (redirects to index.html)
 │
 ├── README.md              # Project documentation
-└── LICENSE               # MIT License
+
 
 Note: All CSS and JavaScript are embedded within HTML files for portability
 ```
