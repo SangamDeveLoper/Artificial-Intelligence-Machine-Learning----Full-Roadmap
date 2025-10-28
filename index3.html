@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSA Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Applied dark theme from home page */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1419;
+      color: #ffffff;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
+      z-index: 0;
+    }
+
+    .bg-gradient::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle, rgba(83, 232, 139, 0.1) 0%, transparent 50%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #ff4655;
+      transform: translateX(-5px);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .header h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #ff4655 0%, #ff7a85 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+    }
+
+    .header h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff4655, #ff7a85);
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      color: #8b92a8;
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4655, #ff7a85);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      font-size: 1.1rem;
+    }
+
+    .level {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .level:hover {
+      border-color: rgba(255, 70, 85, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .level-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      cursor: pointer;
+    }
+
+    .level-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .level-title svg {
+      width: 28px;
+      height: 28px;
+      stroke: #ff4655;
+    }
+
+    .level-progress {
+      font-size: 1.2rem;
+      color: #ff4655;
+      font-weight: 700;
+      background: rgba(255, 70, 85, 0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+
+    .category {
+      margin-bottom: 20px;
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .category-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ff7a85;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, #ff4655, #ff7a85);
+      border-radius: 2px;
+    }
+
+    .category-progress {
+      font-size: 1.2rem;
+      color: #ff4655;
+      font-weight: 700;
+      background: rgba(255, 70, 85, 0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+
+    .topic {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .topic:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 70, 85, 0.3);
+      transform: translateX(5px);
+    }
+
+    .topic input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      margin-right: 15px;
+      cursor: pointer;
+      accent-color: #ff4655;
+    }
+
+    .topic label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 1.05rem;
+      color: #d1d5db;
+      line-height: 1.5;
+    }
+
+    .topic.completed {
+      opacity: 0.6;
+    }
+
+    .topic.completed label {
+      text-decoration: line-through;
+      color: #6b7280;
+    }
+
+    /* Added user info and logout button styles */
+    .user-info {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 1000;
+    }
+
+    .user-info.hidden {
+      display: none;
+    }
+
+    .user-info .username {
+      color: #ff4655;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      background: rgba(255, 70, 85, 0.2);
+      border: 1px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 70, 85, 0.3);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+      }
+
+      .level {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  
+  <!-- Added user info display -->
+  <div class="user-info hidden" id="user-info">
+    <span class="username" id="display-username"></span>
+    <button class="logout-btn" id="logout-btn">Logout</button>
+  </div>
+  
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='index.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Hub
+    </button>
+    
+    <div class="header">
+      <h1>DSA Portal</h1>
+      <p>Master Data Structures & Algorithms for MAANG Internships</p>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="overall-progress">0%</div>
+    </div>
+
+    <div id="levels-container"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script>
+    const dsaData = {
+      "Level 1: Arrays": {
+        "Prefix Sum": [
+          "Running Sum of 1D Array",
+          "Find Pivot Index",
+          "Subarray Sum Equals K",
+          "Range Sum Query - Immutable",
+          "Equilibrium Point",
+          "Sum of All Odd Length Subarrays",
+          "Subarray Sums Divisible by K",
+          "Maximum Size Subarray Sum Equals k",
+          "Ways to Split Array Into Three Subarrays",
+          "Maximum Sum of Two Non-Overlapping Subarrays",
+          "Largest Sum of Averages"
+        ],
+        "Sliding Window": [
+          "Maximum Average Subarray I",
+          "Minimum Size Subarray Sum",
+          "Max Consecutive Ones III",
+          "Longest Substring Without Repeating Characters",
+          "Contains Duplicate II",
+          "Permutation in String",
+          "Fruit Into Baskets",
+          "Longest Repeating Character Replacement",
+          "Subarrays with K Different Integers",
+          "Minimum Window Substring",
+          "Sliding Window Median"
+        ],
+        "Two Pointers": [
+          "Two Sum II - Input Array Is Sorted",
+          "Squares of a Sorted Array",
+          "Remove Duplicates from Sorted Array",
+          "Reverse String",
+          "Valid Palindrome II",
+          "Merge Sorted Array",
+          "3Sum",
+          "4Sum",
+          "Container With Most Water",
+          "Sort Colors (Dutch National Flag)",
+          "Trapping Rain Water"
+        ],
+        "Hashing": [
+          "Two Sum",
+          "Contains Duplicate",
+          "Majority Element",
+          "Intersection of Two Arrays",
+          "Valid Anagram",
+          "Group Anagrams",
+          "Subarray Sum Equals K",
+          "Longest Consecutive Sequence",
+          "Top K Frequent Elements",
+          "Valid Sudoku",
+          "First Missing Positive"
+        ],
+        "Kadane / DP": [
+          "Maximum Subarray",
+          "Best Time to Buy and Sell Stock",
+          "House Robber",
+          "Climbing Stairs",
+          "Min Cost Climbing Stairs",
+          "Maximum Product Subarray",
+          "House Robber II",
+          "Partition Equal Subset Sum",
+          "Longest Increasing Subsequence",
+          "Coin Change",
+          "Best Time to Buy and Sell Stock III"
+        ],
+        "Sorting + Binary Search": [
+          "Binary Search",
+          "Search Insert Position",
+          "Find First and Last Position of Element",
+          "Search in Rotated Sorted Array",
+          "Find Minimum in Rotated Sorted Array",
+          "Median of Two Sorted Arrays",
+          "Kth Smallest Element in a Sorted Matrix",
+          "Split Array Largest Sum",
+          "Capacity to Ship Packages within D Days",
+          "Koko Eating Bananas"
+        ],
+        "Matrix": [
+          "Transpose Matrix",
+          "Reshape the Matrix",
+          "Search a 2D Matrix",
+          "Diagonal Traverse",
+          "Spiral Matrix",
+          "Rotate Image",
+          "Set Matrix Zeroes",
+          "Search a 2D Matrix II",
+          "Game of Life",
+          "Word Search"
+        ],
+        "Greedy": [
+          "Assign Cookies",
+          "Can Place Flowers",
+          "Best Time to Buy and Sell Stock",
+          "Jump Game",
+          "Non-overlapping Intervals",
+          "Meeting Rooms II",
+          "Gas Station",
+          "Minimum Number of Arrows to Burst Balloons",
+          "Candy",
+          "Jump Game II"
+        ],
+        "Monotonic Stack / Deque": [
+          "Next Greater Element I",
+          "Next Greater Element II",
+          "Daily Temperatures",
+          "Online Stock Span",
+          "Largest Rectangle in Histogram",
+          "Trapping Rain Water",
+          "Maximal Rectangle",
+          "Sliding Window Maximum"
+        ],
+        "In-place Manipulation": [
+          "Move Zeroes",
+          "Remove Element",
+          "Sort Array by Parity",
+          "Rotate Array",
+          "Sort Colors",
+          "Wiggle Sort II",
+          "First Missing Positive",
+          "Cyclic Sort"
+        ]
+      },
+      "Level 2: Strings": {
+        "Basic String Manipulation": [
+          "Reverse Words in a String",
+          "Implement strStr()",
+          "String to Integer (atoi)",
+          "Count and Say",
+          "Length of Last Word",
+          "Valid Palindrome",
+          "Add Binary",
+          "Multiply Strings"
+        ],
+        "Two Pointers on Strings": [
+          "Reverse String",
+          "Valid Palindrome II",
+          "Longest Common Prefix",
+          "Merge Strings Alternately",
+          "Remove All Adjacent Duplicates in String",
+          "Reverse Vowels of a String"
+        ],
+        "Sliding Window / Substring": [
+          "Longest Substring Without Repeating Characters",
+          "Minimum Window Substring",
+          "Longest Repeating Character Replacement",
+          "Permutation in String",
+          "Substrings with K Distinct Characters",
+          "Substring with Concatenation of All Words",
+          "Find All Anagrams in a String"
+        ],
+        "Hashing / Frequency Maps": [
+          "Group Anagrams",
+          "Valid Anagram",
+          "Isomorphic Strings",
+          "Find the Difference",
+          "Ransom Note",
+          "Word Pattern",
+          "Check if Two Strings are Close"
+        ],
+        "Palindrome & Center Expansion": [
+          "Longest Palindromic Substring",
+          "Palindromic Substrings (Count)",
+          "Valid Palindrome",
+          "Longest Palindromic Subsequence (DP)",
+          "Shortest Palindrome (Prefix + Reverse)"
+        ],
+        "Stack / Parentheses": [
+          "Valid Parentheses",
+          "Remove Outermost Parentheses",
+          "Minimum Remove to Make Valid Parentheses",
+          "Longest Valid Parentheses",
+          "Simplify Path"
+        ],
+        "Dynamic Programming": [
+          "Edit Distance (Levenshtein Distance)",
+          "Longest Common Subsequence",
+          "Longest Palindromic Subsequence",
+          "Regular Expression Matching",
+          "Wildcard Matching",
+          "Distinct Subsequences",
+          "Interleaving String"
+        ],
+        "Trie / Prefix Tree": [
+          "Implement Trie (Prefix Tree)",
+          "Add and Search Word",
+          "Replace Words",
+          "Word Search II",
+          "Longest Word in Dictionary"
+        ],
+        "Encoding / Decoding": [
+          "Encode and Decode Strings",
+          "Decode String (Nested brackets)",
+          "Zigzag Conversion",
+          "Integer to English Words",
+          "Basic Calculator I / II",
+          "Simplify Unix Path"
+        ],
+        "Greedy + Misc": [
+          "Reorganize String",
+          "Custom Sort String",
+          "Remove Duplicate Letters",
+          "Minimum Remove to Make Valid String",
+          "Frequency Sort",
+          "Partition Labels",
+          "License Key Formatting"
+        ]
+      },
+      "Level 3: Linked Lists": {
+        "Basic Operations": [
+          "Implement Singly Linked List",
+          "Implement Doubly Linked List",
+          "Find Length of Linked List",
+          "Search an Element",
+          "Delete Node by Value",
+          "Delete Node by Position",
+          "Insert at Head / Tail / Middle",
+          "Find Middle Node"
+        ],
+        "Reversal Patterns": [
+          "Reverse Linked List (Iterative & Recursive)",
+          "Reverse Linked List II",
+          "Reverse Nodes in k-Group",
+          "Reverse Alternate K Nodes",
+          "Rotate List",
+          "Swap Nodes in Pairs"
+        ],
+        "Fast & Slow Pointers": [
+          "Middle of the Linked List",
+          "Linked List Cycle (Detect)",
+          "Linked List Cycle II (Find Start)",
+          "Remove Nth Node from End",
+          "Check if Palindrome",
+          "Reorder List"
+        ],
+        "Merging & Sorting": [
+          "Merge Two Sorted Lists",
+          "Merge K Sorted Lists",
+          "Sort List (Merge Sort)",
+          "Partition List"
+        ],
+        "Intersection & Union": [
+          "Intersection of Two Linked Lists",
+          "Add Two Numbers",
+          "Add Two Numbers II",
+          "Find Intersection Node"
+        ],
+        "Circular & Complex": [
+          "Detect and Remove Loop",
+          "Delete Loop without Extra Space",
+          "Clone List with Random Pointer",
+          "Flatten Multilevel Doubly Linked List"
+        ],
+        "Design Patterns": [
+          "LRU Cache",
+          "LFU Cache",
+          "Browser History",
+          "Design Linked List"
+        ]
+      },
+      "Level 4: Stack & Queue": {
+        "Basic Operations": [
+          "Implement Stack",
+          "Min Stack (getMin in O(1))",
+          "Evaluate Reverse Polish Notation",
+          "Next Greater Element I & II",
+          "Implement Queue using Stacks"
+        ],
+        "Monotonic Stack": [
+          "Daily Temperatures",
+          "Largest Rectangle in Histogram",
+          "Trapping Rain Water",
+          "Maximal Rectangle",
+          "Sliding Window Maximum",
+          "Next Greater Element (circular)",
+          "Stock Span Problem"
+        ],
+        "Queue / Deque": [
+          "Implement Queue / Deque",
+          "Sliding Window Maximum (Deque)",
+          "Recent Counter / Moving Average",
+          "Design Circular Queue",
+          "Task Scheduler"
+        ],
+        "Expression & Parsing": [
+          "Valid Parentheses",
+          "Min Remove to Make Valid Parentheses",
+          "Longest Valid Parentheses",
+          "Simplify Path",
+          "Basic Calculator I / II"
+        ],
+        "Advanced Design": [
+          "LRU Cache",
+          "LFU Cache",
+          "Browser History"
+        ]
+      },
+      "Level 5: Recursion & Backtracking": {
+        "Basic Recursion": [
+          "Factorial of a Number",
+          "Fibonacci Sequence",
+          "Sum of Digits / Numbers",
+          "Power Function (x^n)",
+          "Reverse String / Number",
+          "Check Palindrome Recursively"
+        ],
+        "Permutations & Combinations": [
+          "Subsets (Power Set)",
+          "Subsets II (with Duplicates)",
+          "Permutations",
+          "Permutations II (with Duplicates)",
+          "Combinations (n choose k)",
+          "Combination Sum I / II / III",
+          "Letter Combinations of Phone Number",
+          "Generate Parentheses"
+        ],
+        "Matrix / Grid Backtracking": [
+          "Word Search",
+          "Rat in a Maze",
+          "N-Queens",
+          "N-Queens II",
+          "Sudoku Solver",
+          "Unique Paths III"
+        ],
+        "Decision Making": [
+          "Palindrome Partitioning I / II",
+          "Restore IP Addresses",
+          "Expression Add Operators",
+          "Target Sum",
+          "Decode Ways"
+        ],
+        "Advanced Backtracking": [
+          "Knight's Tour",
+          "Hamiltonian Path",
+          "Word Ladder II",
+          "Maze with Obstacles",
+          "Subset Sum Problem",
+          "Crossword Solver"
+        ]
+      },
+      "Level 6: Binary Tree & BST": {
+        "Basic Traversals": [
+          "Preorder Traversal",
+          "Inorder Traversal",
+          "Postorder Traversal",
+          "Level Order Traversal",
+          "Reverse Level Order"
+        ],
+        "Tree Properties": [
+          "Maximum Depth",
+          "Minimum Depth",
+          "Diameter of Binary Tree",
+          "Check if Balanced",
+          "Count Nodes / Leaf Nodes",
+          "Height of Tree"
+        ],
+        "BST Operations": [
+          "Validate BST",
+          "Insert into BST",
+          "Delete Node in BST",
+          "Lowest Common Ancestor in BST",
+          "Search in BST",
+          "Kth Smallest / Largest Element",
+          "Closest Value in BST"
+        ],
+        "Path & Sum": [
+          "Path Sum I / II / III",
+          "Sum of Left Leaves",
+          "Binary Tree Maximum Path Sum",
+          "Root-to-Leaf Paths",
+          "Count Paths with Given Sum"
+        ],
+        "Transformations": [
+          "Invert / Mirror Binary Tree",
+          "Flatten Binary Tree to Linked List",
+          "Convert Sorted Array to BST",
+          "Convert Sorted List to BST",
+          "Construct Tree from Traversals"
+        ],
+        "Advanced Patterns": [
+          "Lowest Common Ancestor of N-ary Tree",
+          "Serialize and Deserialize",
+          "Populating Next Right Pointers",
+          "Boundary Traversal",
+          "Maximum Width",
+          "Sum of Nodes at K Distance"
+        ]
+      },
+      "Level 7: Graphs": {
+        "Basic Traversals": [
+          "Graph Representations",
+          "Breadth-First Search (BFS)",
+          "Depth-First Search (DFS)",
+          "Connected Components",
+          "Number of Islands",
+          "Flood Fill"
+        ],
+        "Shortest Path": [
+          "Dijkstra's Algorithm",
+          "Bellman-Ford Algorithm",
+          "BFS for Shortest Path",
+          "Shortest Path in DAG",
+          "Minimum Steps Problems",
+          "Word Ladder"
+        ],
+        "Topological Sort": [
+          "Topological Sort (DFS / Kahn's)",
+          "Course Schedule I & II",
+          "Minimum Height Trees",
+          "Alien Dictionary",
+          "Parallel Tasks / Scheduling"
+        ],
+        "Union-Find": [
+          "Number of Connected Components",
+          "Redundant Connection",
+          "Graph Valid Tree",
+          "Accounts Merge",
+          "Friend Circles"
+        ],
+        "Advanced Patterns": [
+          "Minimum Spanning Tree",
+          "Critical Connections / Bridges",
+          "Tarjan's Algorithm",
+          "Network Delay Time",
+          "Shortest Path with Constraints",
+          "Maximal Network Rank"
+        ],
+        "Maze / Grid Problems": [
+          "Rat in a Maze",
+          "Rotten Oranges",
+          "Walls and Gates",
+          "Pacific Atlantic Water Flow",
+          "Shortest Bridge"
+        ]
+      },
+      "Level 8: Heap": {
+        "Basic Operations": [
+          "Implement Min Heap / Max Heap",
+          "Push, Pop, Peek operations",
+          "Heapify an Array",
+          "Kth Largest / Smallest Element",
+          "Merge K Sorted Lists"
+        ],
+        "Top K Patterns": [
+          "Sliding Window Maximum",
+          "Top K Frequent Elements",
+          "K Closest Points to Origin",
+          "Top K Frequent Words",
+          "Kth Smallest in Sorted Matrix"
+        ],
+        "Scheduling": [
+          "Task Scheduler",
+          "Minimum Cost to Connect Sticks",
+          "Reorganize String",
+          "Merge Intervals (Heap-based)",
+          "Meeting Rooms II"
+        ],
+        "Advanced Patterns": [
+          "Median from Data Stream",
+          "Sliding Window Median",
+          "Smallest Range Covering K Lists",
+          "Maximum Sum of K Non-Overlapping Subarrays",
+          "Resource Allocation Problems"
+        ]
+      },
+      "Level 9: Dynamic Programming": {
+        "1D DP": [
+          "Fibonacci Sequence",
+          "Climbing Stairs",
+          "House Robber I & II",
+          "Maximum Subarray (Kadane's)",
+          "Best Time to Buy and Sell Stock",
+          "Decode Ways",
+          "Unique Paths"
+        ],
+        "2D DP / Grid": [
+          "Minimum Path Sum",
+          "Dungeon Game",
+          "Edit Distance",
+          "Interleaving String",
+          "Longest Common Subsequence",
+          "Longest Palindromic Subsequence",
+          "Regular Expression Matching"
+        ],
+        "Subset / Knapsack": [
+          "0/1 Knapsack",
+          "Partition Equal Subset Sum",
+          "Subset Sum Problem",
+          "Target Sum",
+          "Coin Change I / II",
+          "Combination Sum IV",
+          "Minimum Coin Change"
+        ],
+        "State DP": [
+          "Burst Balloons",
+          "Palindrome Partitioning II",
+          "Stock Variants",
+          "Paint House I / II / III",
+          "Cherry Pickup",
+          "Triangle Minimum Path",
+          "Matrix Chain Multiplication"
+        ],
+        "Sequence / Interval": [
+          "Longest Increasing Subsequence",
+          "Longest Decreasing Subsequence",
+          "Maximum Sum Increasing Subsequence",
+          "Weighted Job Scheduling",
+          "Minimum Cost to Cut a Stick"
+        ],
+        "Miscellaneous": [
+          "Word Break I / II",
+          "Decode Ways II",
+          "Scramble String",
+          "Distinct Subsequences",
+          "Palindromic Substrings"
+        ]
+      },
+      "Level 10: Bit Manipulation & Math": {
+        "Basic Bit Manipulation": [
+          "Single Number I / II / III",
+          "Number of 1 Bits",
+          "Counting Bits",
+          "Reverse Bits",
+          "Missing Number",
+          "Power of Two",
+          "Power of Four",
+          "Power of Three",
+          "Subsets using Bits",
+          "Bitwise AND of Numbers Range",
+          "XOR Queries"
+        ],
+        "Bit Tricks": [
+          "Flip Bits / Complement",
+          "Maximum XOR of Two Numbers",
+          "Sum of Two Integers (without +)",
+          "Sparse Matrix using Bits",
+          "Checking / Setting / Clearing Bits",
+          "Gray Code",
+          "Hamming Distance / Weight"
+        ],
+        "Math / Number Theory": [
+          "Count Primes",
+          "Sieve of Eratosthenes",
+          "Greatest Common Divisor (GCD)",
+          "Least Common Multiple (LCM)",
+          "Prime Factorization",
+          "Roman to Integer / Integer to Roman",
+          "Palindrome Number",
+          "Happy Number",
+          "Excel Sheet Column Number",
+          "Sqrt(x) / Pow(x, n)",
+          "Factorial / Combinatorics"
+        ],
+        "Advanced Math": [
+          "Modular Arithmetic Problems",
+          "Josephus Problem",
+          "Count Trailing Zeros in Factorial",
+          "Fast Exponentiation",
+          "Probability / Expected Value",
+          "Euclidean Algorithm Applications",
+          "Chinese Remainder Theorem"
+        ]
+      }
+    };
+
+    const levelIcons = {
+      "Level 1: Arrays": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>',
+      "Level 2: Strings": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>',
+      "Level 3: Linked Lists": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="3"></circle><circle cx="19" cy="12" r="3"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>',
+      "Level 4: Stack & Queue": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="4"></rect><rect x="3" y="10" width="18" height="4"></rect><rect x="3" y="17" width="18" height="4"></rect></svg>',
+      "Level 5: Recursion & Backtracking": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg>',
+      "Level 6: Binary Tree & BST": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"></circle><circle cx="7" cy="12" r="2"></circle><circle cx="17" cy="12" r="2"></circle><line x1="12" y1="7" x2="7" y2="10"></line><line x1="12" y1="7" x2="17" y2="10"></line></svg>',
+      "Level 7: Graphs": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="5" r="2"></circle><circle cx="5" cy="19" r="2"></circle><circle cx="19" cy="19" r="2"></circle><line x1="13.5" y1="10.5" x2="17.5" y2="6.5"></line><line x1="10.5" y1="13.5" x2="6.5" y2="17.5"></line><line x1="13.5" y1="13.5" x2="17.5" y2="17.5"></line></svg>',
+      "Level 8: Heap": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5M2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>',
+      "Level 9: Dynamic Programming": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>',
+      "Level 10: Bit Manipulation & Math": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>'
+    };
+
+    let db = null;
+    let currentUser = null;
+
+    async function initDatabase() {
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+      });
+
+      const savedDb = localStorage.getItem('progressDB');
+      if (savedDb) {
+        const uint8Array = new Uint8Array(JSON.parse(savedDb));
+        db = new SQL.Database(uint8Array);
+      } else {
+        window.location.href = 'index.html';
+        return;
+      }
+    }
+
+    function saveDatabase() {
+      const data = db.export();
+      const buffer = Array.from(data);
+      localStorage.setItem('progressDB', JSON.stringify(buffer));
+    }
+
+    function initializeProgress() {
+      currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!currentUser) {
+        window.location.href = 'index.html';
+        return {};
+      }
+      
+      document.getElementById('user-info').classList.remove('hidden');
+      document.getElementById('display-username').textContent = currentUser.username;
+      
+      const progressKey = `user_${currentUser.id}_progress`;
+      const saved = localStorage.getItem(progressKey);
+      return saved ? JSON.parse(saved) : {};
+    }
+
+    let progress = initializeProgress();
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    function saveProgress() {
+      if (!currentUser) return;
+      
+      if (db) {
+        Object.keys(progress).forEach(topic => {
+          // Use topic name directly as task_id for portal tasks
+          db.run(`INSERT OR REPLACE INTO progress (user_id, task_id, completed) VALUES (?, ?, ?)`,
+            [currentUser.id, topic, progress[topic] ? 1 : 0]);
+        });
+        saveDatabase();
+      }
+      
+      const progressKey = `user_${currentUser.id}_progress`;
+      localStorage.setItem(progressKey, JSON.stringify(progress));
+      updateOverallProgress();
+      
+      window.dispatchEvent(new Event('storage'));
+    }
+
+    function updateOverallProgress() {
+      let total = 0;
+      let completed = 0;
+
+      Object.keys(dsaData).forEach(level => {
+        Object.keys(dsaData[level]).forEach(category => {
+          dsaData[level][category].forEach(topic => {
+            total++;
+            if (progress[topic]) completed++;
+          });
+        });
+      });
+
+      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+      document.getElementById('overall-progress').style.width = percentage + '%';
+      document.getElementById('overall-progress').textContent = percentage + '%';
+      
+      if (currentUser) {
+        localStorage.setItem(`portal_dsa_progress_${currentUser.id}`, JSON.stringify({
+          percentage,
+          completed,
+          total
+        }));
+      }
+      
+      window.dispatchEvent(new CustomEvent('portalProgressUpdate', { 
+        detail: { portal: 'dsa', percentage, completed, total } 
+      }));
+    }
+
+    function playTaskCompleteSound() {
+      const sound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS57OihUBELTKXh8bllHAU2jdXvzn0vBSh+zPDajzsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z24k2Bhxqu+zpoVARC0yl4fG5ZRwFNo3V7859LwUofsz');
+      sound.play().catch(e => console.log('Sound play failed:', e));
+    }
+
+    function renderLevels() {
+      const container = document.getElementById('levels-container');
+      container.innerHTML = '';
+
+      Object.keys(dsaData).forEach((levelName, levelIndex) => {
+        const level = document.createElement('div');
+        level.className = 'level';
+
+        let levelTotal = 0;
+        let levelCompleted = 0;
+
+        Object.keys(dsaData[levelName]).forEach(category => {
+          dsaData[levelName][category].forEach(topic => {
+            levelTotal++;
+            if (progress[topic]) levelCompleted++;
+          });
+        });
+
+        const levelProgress = `${levelCompleted}/${levelTotal}`;
+
+        level.innerHTML = `
+          <div class="level-header">
+            <div class="level-title">
+              ${levelIcons[levelName] || ''}
+              ${levelName}
+            </div>
+            <div class="level-progress">${levelProgress}</div>
+          </div>
+          <div class="categories" id="categories-${levelIndex}"></div>
+        `;
+
+        container.appendChild(level);
+
+        const categoriesContainer = document.getElementById(`categories-${levelIndex}`);
+        Object.keys(dsaData[levelName]).forEach((categoryName, categoryIndex) => {
+          const category = document.createElement('div');
+          category.className = 'category';
+
+          const topics = dsaData[levelName][categoryName];
+          const completedCount = topics.filter(t => progress[t]).length;
+          const categoryProgress = `${completedCount}/${topics.length}`;
+
+          category.innerHTML = `
+            <div class="category-header">
+              <div class="category-title">${categoryName}</div>
+              <div class="category-progress">${categoryProgress}</div>
+            </div>
+            <div class="topics" id="topics-${levelIndex}-${categoryIndex}"></div>
+          `;
+
+          categoriesContainer.appendChild(category);
+
+          const topicsContainer = document.getElementById(`topics-${levelIndex}-${categoryIndex}`);
+          topics.forEach(topic => {
+            const topicDiv = document.createElement('div');
+            topicDiv.className = 'topic' + (progress[topic] ? ' completed' : '');
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `topic-${topic}`;
+            checkbox.checked = progress[topic] || false;
+            checkbox.addEventListener('change', (e) => {
+              progress[topic] = e.target.checked;
+              if (e.target.checked) {
+                playTaskCompleteSound();
+              }
+              saveProgress();
+              renderLevels();
+            });
+
+            const label = document.createElement('label');
+            label.htmlFor = `topic-${topic}`;
+            label.textContent = topic;
+
+            topicDiv.appendChild(checkbox);
+            topicDiv.appendChild(label);
+            topicsContainer.appendChild(topicDiv);
+          });
+        });
+      });
+    }
+
+    renderLevels();
+    updateOverallProgress();
+
+    initDatabase();
+  </script>
+</body>
+</html>

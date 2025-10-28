@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAANG Internship Quest Made By Sangam</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1419;
+      color: #ffffff;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
+      z-index: 0;
+    }
+
+    .bg-gradient::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 70, 85, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle, rgba(83, 232, 139, 0.1) 0%, transparent 50%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding-top: 40px;
+    }
+
+    .header h1 {
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #ff4655 0%, #53e88b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      position: relative;
+      display: inline-block;
+    }
+
+    .header h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, #ff4655, #53e88b);
+    }
+
+    .header p {
+      font-size: 1.3rem;
+      color: #8b92a8;
+      font-weight: 500;
+      margin-top: 25px;
+    }
+
+    .countdown {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .countdown h2 {
+      font-size: 1.2rem;
+      color: #8b92a8;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    .countdown .time {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff4655, #53e88b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tasks-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .task-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .task-section:hover {
+      border-color: rgba(255, 70, 85, 0.5);
+      transform: translateY(-5px);
+    }
+
+    .task-section h3 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+
+    .task-section h3 svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .task-list {
+      list-style: none;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-item:hover {
+      padding-left: 10px;
+    }
+
+    .task-checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      margin-top: 2px;
+    }
+
+    .task-checkbox:hover {
+      border-color: #53e88b;
+    }
+
+    .task-checkbox.checked {
+      background: linear-gradient(135deg, #53e88b, #2dd4bf);
+      border-color: #53e88b;
+    }
+
+    .task-checkbox svg {
+      width: 16px;
+      height: 16px;
+      display: none;
+    }
+
+    .task-checkbox.checked svg {
+      display: block;
+    }
+
+    .task-text {
+      flex: 1;
+      font-size: 1rem;
+      color: #d1d5db;
+      line-height: 1.6;
+    }
+
+    .task-item.completed .task-text {
+      color: #6b7280;
+      text-decoration: line-through;
+    }
+
+    .progress-bar-container {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4655, #53e88b);
+      transition: width 0.5s ease;
+      border-radius: 8px;
+    }
+
+    .progress-text {
+      text-align: right;
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #8b92a8;
+      font-weight: 600;
+    }
+
+    .portals {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .portal-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 70, 85, 0.1), rgba(83, 232, 139, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .portal-card:hover::before {
+      opacity: 1;
+    }
+
+    .portal-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(255, 70, 85, 0.5);
+    }
+
+    .portal-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .portal-card h3 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .portal-card p {
+      color: #8b92a8;
+      margin-bottom: 25px;
+      font-size: 1.1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-ring {
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .progress-ring .bg {
+      stroke: rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-ring .progress {
+      stroke: url(#gradient);
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s;
+    }
+
+    .progress-ring-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .portal-btn {
+      background: linear-gradient(135deg, #ff4655, #ff7a85);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .portal-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(255, 70, 85, 0.4);
+    }
+
+    .reward-section {
+      text-align: center;
+      padding: 50px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reward-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 70, 85, 0.1) 0%, transparent 70%);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .reward-section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward-section p {
+      color: #8b92a8;
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward-btn {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #0f1419;
+      border: none;
+      padding: 20px 60px;
+      border-radius: 8px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward-btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
+      cursor: not-allowed;
+    }
+
+    .reward-btn:not(:disabled):hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 50px rgba(255, 215, 0, 0.5);
+    }
+
+    .reward-btn.claimed {
+      background: linear-gradient(135deg, #53e88b, #2dd4bf);
+      color: white;
+    }
+
+    .reward-status {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #8b92a8;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(10px);
+    }
+
+    .auth-modal.hidden {
+      display: none;
+    }
+
+    .auth-container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 450px;
+      width: 90%;
+      backdrop-filter: blur(20px);
+    }
+
+    .auth-container h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      text-align: center;
+      background: linear-gradient(135deg, #ff4655 0%, #53e88b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .auth-container p {
+      text-align: center;
+      color: #8b92a8;
+      margin-bottom: 30px;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      color: #d1d5db;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #53e88b;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .auth-btn {
+      background: linear-gradient(135deg, #ff4655, #ff7a85);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+
+    .auth-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 30px rgba(255, 70, 85, 0.4);
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 20px;
+      color: #8b92a8;
+    }
+
+    .auth-switch a {
+      color: #53e88b;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-switch a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background: rgba(255, 70, 85, 0.2);
+      border: 1px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .user-info {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 1000;
+    }
+
+    .user-info.hidden {
+      display: none;
+    }
+
+    .user-info .username {
+      color: #53e88b;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      background: rgba(255, 70, 85, 0.2);
+      border: 1px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 70, 85, 0.3);
+      transform: scale(1.05);
+    }
+
+    .timer-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(10px);
+    }
+
+    .timer-modal.hidden {
+      display: none;
+    }
+
+    .timer-container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      backdrop-filter: blur(20px);
+      text-align: center;
+    }
+
+    .timer-container h2 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .timer-container p {
+      color: #8b92a8;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+
+    .timer-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .timer-input-group label {
+      color: #d1d5db;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .timer-input-group input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 15px;
+      color: white;
+      font-size: 1.2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .timer-input-group input:focus {
+      outline: none;
+      border-color: #ffd700;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .timer-set-btn {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #0f1419;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .timer-set-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 50px rgba(255, 215, 0, 0.5);
+    }
+
+    .ultimate-reward-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10001;
+      backdrop-filter: blur(20px);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .ultimate-reward-modal.hidden {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .ultimate-reward-content {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(83, 232, 139, 0.1));
+      border: 3px solid #ffd700;
+      border-radius: 24px;
+      padding: 60px 40px;
+      max-width: 700px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+      animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 0 100px rgba(255, 215, 0, 0.5);
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .ultimate-reward-content h2 {
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffd700, #ffed4e, #53e88b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .ultimate-reward-content p {
+      font-size: 1.5rem;
+      color: #d1d5db;
+      margin-bottom: 30px;
+      line-height: 1.8;
+    }
+
+    .ultimate-reward-close-btn {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #0f1419;
+      border: none;
+      padding: 20px 60px;
+      border-radius: 12px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 20px;
+    }
+
+    .ultimate-reward-close-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 50px rgba(255, 215, 0, 0.6);
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2.5rem;
+      }
+
+      .tasks-overview {
+        grid-template-columns: 1fr;
+      }
+
+      .portals {
+        grid-template-columns: 1fr;
+      }
+
+      .reward-section {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="auth-modal" id="auth-modal">
+    <div class="auth-container">
+      <h2 id="auth-title">Welcome Back</h2>
+      <p id="auth-subtitle">Sign in to track your progress</p>
+
+      <div class="error-message" id="error-message"></div>
+
+      <form class="auth-form" id="auth-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" required minlength="3">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required minlength="6">
+        </div>
+        <button type="submit" class="auth-btn" id="auth-submit">Sign In</button>
+      </form>
+
+      <div class="auth-switch">
+        <span id="auth-switch-text">Don't have an account? </span>
+        <a id="auth-switch-link">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="timer-modal hidden" id="timer-modal">
+    <div class="timer-container">
+      <h2 id="timer-modal-title">Set Your Timer</h2>
+      <p id="timer-modal-description">Choose how many days you need to complete your ML Engineer journey!</p>
+
+      <div class="timer-input-group">
+        <label for="custom-days">Enter number of days (1-3650):</label>
+        <input type="number" id="custom-days" min="1" max="3650" value="365" required>
+      </div>
+
+      <button class="timer-set-btn" id="timer-set-btn">Set Timer</button>
+    </div>
+  </div>
+
+  <div class="ultimate-reward-modal hidden" id="ultimate-reward-modal">
+    <div class="ultimate-reward-content">
+      <h2>Congratulations!</h2>
+      <p>You have successfully become an ML Engineer!</p>
+      <button class="ultimate-reward-close-btn" id="ultimate-reward-close-btn">Continue Your Journey</button>
+    </div>
+  </div>
+
+  <div class="user-info hidden" id="user-info">
+    <span class="username" id="display-username"></span>
+    <button class="logout-btn" id="logout-btn">Logout</button>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>Ml Engineer Sheet Made By Sangam</h1>
+      <p>Master DSA & ML Engineering to Unlock Your Dream Job At Product Based & Top Tech Giants</p>
+    </div>
+
+    <div class="countdown">
+      <h2>Time Remaining</h2>
+      <div class="time" id="countdown">Loading...</div>
+    </div>
+
+    <div class="tasks-overview">
+      <div class="task-section">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+          </svg>
+          Data Structures & Algorithms
+        </h3>
+        <ul class="task-list" id="dsa-tasks">
+          <li class="task-item">
+            <div class="task-checkbox" data-task="dsa-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Complete all data structure and patterns</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="dsa-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Finish NeetCode Blind 75 and full roadmap</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="dsa-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Finish Take U Forward DSA sheet</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="dsa-4">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Do quick pattern revision and watch interview confidence boosts</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="dsa-5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Finish Cracking the Coding Interview book</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="dsa-6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Crack the MAANG MNC Interview</div>
+          </li>
+        </ul>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="dsa-progress-bar" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="dsa-progress-percentage">0% Complete</div>
+      </div>
+
+      <div class="task-section">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          Machine Learning
+        </h3>
+        <ul class="task-list" id="ml-tasks">
+          <li class="task-item">
+            <div class="task-checkbox" data-task="ml-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Revise the concepts and complete ML concepts with maths</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="ml-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Practice large set of math questions</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="ml-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Do project on specific domain</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="ml-4">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Do beginner machine learning projects</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="ml-5">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Do projects by yourself</div>
+          </li>
+          <li class="task-item">
+            <div class="task-checkbox" data-task="ml-6">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="task-text">Build ultimate project for intern at MAANG</div>
+          </li>
+        </ul>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="ml-progress-bar" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="ml-progress-percentage">0% Complete</div>
+      </div>
+    </div>
+
+    <div class="portals">
+      <div class="portal-card" onclick="window.location.href='index3.html'">
+        <div class="portal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff4655" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+        </div>
+        <h3>DSA Portal</h3>
+        <p>10 Levels of Mastery</p>
+        <div class="progress-ring">
+          <svg width="120" height="120">
+            <defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#ff4655;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#53e88b;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <circle class="bg" cx="60" cy="60" r="54"></circle>
+            <circle class="progress" id="dsa-progress-circle" cx="60" cy="60" r="54"
+                    stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+          </svg>
+          <div class="progress-ring-text" id="dsa-progress-text">0%</div>
+        </div>
+        <button class="portal-btn">Enter Portal</button>
+      </div>
+
+      <div class="portal-card" onclick="window.location.href='index2.html'">
+        <div class="portal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#53e88b" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+          </svg>
+        </div>
+        <h3>ML Portal</h3>
+        <p>9 Core Domains</p>
+        <div class="progress-ring">
+          <svg width="120" height="120">
+            <circle class="bg" cx="60" cy="60" r="54"></circle>
+            <circle class="progress" id="ml-progress-circle" cx="60" cy="60" r="54"
+                    stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+          </svg>
+          <div class="progress-ring-text" id="ml-progress-text">0%</div>
+        </div>
+        <button class="portal-btn">Enter Portal</button>
+      </div>
+
+      <div class="portal-card" onclick="window.location.href='system-design.html'">
+        <div class="portal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <h3>System Design</h3>
+        <p>10 Essential Topics</p>
+        <div class="progress-ring">
+          <svg width="120" height="120">
+            <circle class="bg" cx="60" cy="60" r="54"></circle>
+            <circle class="progress" id="system-progress-circle" cx="60" cy="60" r="54"
+                    stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+          </svg>
+          <div class="progress-ring-text" id="system-progress-text">0%</div>
+        </div>
+        <button class="portal-btn">Enter Portal</button>
+      </div>
+    </div>
+
+    <div class="reward-section">
+      <h2>Ultimate Reward</h2>
+      <p>Complete all three portals to claim your MAANG internship!</p>
+      <button class="reward-btn" id="reward-btn" disabled>
+        Locked - Complete All Portals
+      </button>
+      <p class="reward-status" id="reward-status">DSA: 0% | ML: 0% | System: 0%</p>
+    </div>
+  </div>
+
+  <script>
+    let db = null;
+    let currentUser = null;
+
+    async function initDatabase() {
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+      });
+
+      const savedDb = localStorage.getItem('progressDB');
+      if (savedDb) {
+        const uint8Array = new Uint8Array(JSON.parse(savedDb));
+        db = new SQL.Database(uint8Array);
+      } else {
+        db = new SQL.Database();
+        createTables();
+      }
+    }
+
+    function createTables() {
+      db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT UNIQUE NOT NULL,
+          password TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          timer_end INTEGER DEFAULT 0,
+          custom_timer_days INTEGER DEFAULT 0
+        );
+      `);
+
+      db.run(`
+        CREATE TABLE IF NOT EXISTS progress (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          task_id TEXT NOT NULL,
+          completed INTEGER DEFAULT 0,
+          FOREIGN KEY (user_id) REFERENCES users(id),
+          UNIQUE(user_id, task_id)
+        );
+      `);
+
+      saveDatabase();
+    }
+
+    function saveDatabase() {
+      const data = db.export();
+      const buffer = Array.from(data);
+      localStorage.setItem('progressDB', JSON.stringify(buffer));
+    }
+
+    let isSignUp = false;
+
+    function showError(message) {
+      const errorEl = document.getElementById('error-message');
+      errorEl.textContent = message;
+      errorEl.classList.add('show');
+      setTimeout(() => errorEl.classList.remove('show'), 3000);
+    }
+
+    function switchAuthMode() {
+      isSignUp = !isSignUp;
+      const title = document.getElementById('auth-title');
+      const subtitle = document.getElementById('auth-subtitle');
+      const submitBtn = document.getElementById('auth-submit');
+      const switchText = document.getElementById('auth-switch-text');
+      const switchLink = document.getElementById('auth-switch-link');
+
+      if (isSignUp) {
+        title.textContent = 'Create Account';
+        subtitle.textContent = 'Start your MAANG journey today';
+        submitBtn.textContent = 'Sign Up';
+        switchText.textContent = 'Already have an account? ';
+        switchLink.textContent = 'Sign In';
+      } else {
+        title.textContent = 'Welcome Back';
+        subtitle.textContent = 'Sign in to track your progress';
+        submitBtn.textContent = 'Sign In';
+        switchText.textContent = "Don't have an account? ";
+        switchLink.textContent = 'Sign Up';
+      }
+    }
+
+    document.getElementById('auth-switch-link').addEventListener('click', switchAuthMode);
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (isSignUp) {
+        try {
+          const existing = db.exec(`SELECT * FROM users WHERE username = ?`, [username]);
+          if (existing.length > 0 && existing[0].values.length > 0) {
+            showError('Username already exists');
+            return;
+          }
+
+          const now = Date.now();
+          db.run(`INSERT INTO users (username, password, created_at, timer_end, custom_timer_days) VALUES (?, ?, ?, ?, ?)`,
+            [username, password, now, 0, 0]);
+
+          saveDatabase();
+
+          const result = db.exec(`SELECT * FROM users WHERE username = ?`, [username]);
+          currentUser = {
+            id: result[0].values[0][0],
+            username: result[0].values[0][1],
+            created_at: result[0].values[0][3],
+            timer_end: result[0].values[0][4],
+            custom_timer_days: result[0].values[0][5]
+          };
+
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          showMainApp();
+        } catch (error) {
+          showError('Error creating account');
+          console.error(error);
+        }
+      } else {
+        try {
+          const result = db.exec(`SELECT * FROM users WHERE username = ? AND password = ?`,
+            [username, password]);
+
+          if (result.length === 0 || result[0].values.length === 0) {
+            showError('Invalid username or password');
+            return;
+          }
+
+          currentUser = {
+            id: result[0].values[0][0],
+            username: result[0].values[0][1],
+            created_at: result[0].values[0][3],
+            timer_end: result[0].values[0][4],
+            custom_timer_days: result[0].values[0][5]
+          };
+
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          showMainApp();
+        } catch (error) {
+          showError('Error signing in');
+          console.error(error);
+        }
+      }
+    });
+
+    function showMainApp() {
+      document.getElementById('auth-modal').classList.add('hidden');
+      document.getElementById('user-info').classList.remove('hidden');
+      document.getElementById('display-username').textContent = currentUser.username;
+
+      if (!currentUser.timer_end || currentUser.timer_end === 0) {
+        document.getElementById('timer-modal-title').textContent = 'Welcome! Set Your Timer';
+        document.getElementById('timer-modal-description').textContent = 'Choose how many days you need to complete your ML Engineer journey!';
+        document.getElementById('timer-modal').classList.remove('hidden');
+      } else {
+        checkTimer();
+      }
+
+      loadUserProgress();
+      updateProgress();
+      updateHomeTaskProgress();
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      currentUser = null;
+      localStorage.removeItem('currentUser');
+      document.getElementById('auth-modal').classList.remove('hidden');
+      document.getElementById('user-info').classList.add('hidden');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    });
+
+    function checkTimer() {
+      const now = Date.now();
+      if (currentUser && currentUser.timer_end && now >= currentUser.timer_end) {
+        document.getElementById('timer-modal-title').textContent = 'Timer Expired!';
+        document.getElementById('timer-modal-description').textContent = 'Your timer has ended. Set your own pace to continue your journey!';
+        document.getElementById('timer-modal').classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('timer-set-btn').addEventListener('click', () => {
+      const days = parseInt(document.getElementById('custom-days').value);
+      if (days < 1 || days > 3650) {
+        alert('Please enter a valid number of days (1-3650)');
+        return;
+      }
+
+      const now = Date.now();
+      const newTimerEnd = now + (days * 24 * 60 * 60 * 1000);
+
+      db.run(`UPDATE users SET timer_end = ?, custom_timer_days = ? WHERE id = ?`,
+        [newTimerEnd, days, currentUser.id]);
+
+      currentUser.timer_end = newTimerEnd;
+      currentUser.custom_timer_days = days;
+
+      saveDatabase();
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+      document.getElementById('timer-modal').classList.add('hidden');
+      updateCountdown();
+    });
+
+    function loadUserProgress() {
+      if (!currentUser) return;
+
+      const result = db.exec(`SELECT task_id, completed FROM progress WHERE user_id = ?`,
+        [currentUser.id]);
+
+      const progressData = {};
+      if (result.length > 0) {
+        result[0].values.forEach(([taskId, completed]) => {
+          progressData[taskId] = !!completed;
+          if (completed) {
+            const checkbox = document.querySelector(`[data-task="${taskId}"]`);
+            if (checkbox) {
+              checkbox.classList.add('checked');
+              checkbox.closest('.task-item').classList.add('completed');
+            }
+          }
+        });
+      }
+      const progressKey = `user_${currentUser.id}_progress`;
+      localStorage.setItem(progressKey, JSON.stringify(progressData));
+    }
+
+    function saveTaskProgress(taskId, completed) {
+      if (!currentUser) return;
+
+      db.run(`INSERT OR REPLACE INTO progress (user_id, task_id, completed) VALUES (?, ?, ?)`,
+        [currentUser.id, taskId, completed ? 1 : 0]);
+
+      saveDatabase();
+
+      const progressKey = `user_${currentUser.id}_progress`;
+      const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
+      progress[taskId] = completed;
+      localStorage.setItem(progressKey, JSON.stringify(progress));
+    }
+
+    function updateCountdown() {
+      if (!currentUser) return;
+
+      const targetDate = new Date(currentUser.timer_end);
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        document.getElementById('countdown').textContent = 'Timer Expired - Set New Timer!';
+        document.getElementById('countdown').style.color = '#ff4655';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('countdown').textContent =
+        `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    function updateHomeTaskProgress() {
+      if (!currentUser) return;
+
+      const result = db.exec(`SELECT task_id FROM progress WHERE user_id = ? AND completed = 1`,
+        [currentUser.id]);
+
+      const completedTasks = new Set();
+      if (result.length > 0) {
+        result[0].values.forEach(([taskId]) => completedTasks.add(taskId));
+      }
+
+      const dsaTasks = document.querySelectorAll('#dsa-tasks .task-checkbox');
+      let dsaCompleted = 0;
+      dsaTasks.forEach(checkbox => {
+        const taskId = checkbox.dataset.task;
+        if (completedTasks.has(taskId)) {
+          checkbox.classList.add('checked');
+          checkbox.closest('.task-item').classList.add('completed');
+          dsaCompleted++;
+        } else {
+          checkbox.classList.remove('checked');
+          checkbox.closest('.task-item').classList.remove('completed');
+        }
+      });
+      const dsaPercentage = dsaTasks.length > 0 ? Math.round((dsaCompleted / dsaTasks.length) * 100) : 0;
+      document.getElementById('dsa-progress-bar').style.width = dsaPercentage + '%';
+      document.getElementById('dsa-progress-percentage').textContent = dsaPercentage + '% Complete';
+
+      const mlTasks = document.querySelectorAll('#ml-tasks .task-checkbox');
+      let mlCompleted = 0;
+      mlTasks.forEach(checkbox => {
+        const taskId = checkbox.dataset.task;
+        if (completedTasks.has(taskId)) {
+          checkbox.classList.add('checked');
+          checkbox.closest('.task-item').classList.add('completed');
+          mlCompleted++;
+        } else {
+          checkbox.classList.remove('checked');
+          checkbox.closest('.task-item').classList.remove('completed');
+        }
+      });
+      const mlPercentage = mlTasks.length > 0 ? Math.round((mlCompleted / mlTasks.length) * 100) : 0;
+      document.getElementById('ml-progress-bar').style.width = mlPercentage + '%';
+      document.getElementById('ml-progress-percentage').textContent = mlPercentage + '% Complete';
+    }
+
+    function updateProgress() {
+      if (!currentUser) return;
+
+      const dsaPortalProgress = JSON.parse(localStorage.getItem(`portal_dsa_progress_${currentUser.id}`) || '{"percentage": 0, "completed": 0, "total": 0}');
+      const mlPortalProgress = JSON.parse(localStorage.getItem(`portal_ml_progress_${currentUser.id}`) || '{"percentage": 0, "completed": 0, "total": 0}');
+      const systemPortalProgress = JSON.parse(localStorage.getItem(`portal_system_progress_${currentUser.id}`) || '{"percentage": 0, "completed": 0, "total": 0}');
+
+      const dsaPercentage = dsaPortalProgress.percentage;
+      const mlPercentage = mlPortalProgress.percentage;
+      const systemPercentage = systemPortalProgress.percentage;
+
+      const dsaCircle = document.getElementById('dsa-progress-circle');
+      const dsaCircumference = 339.292;
+      const dsaOffset = dsaCircumference - (dsaPercentage / 100) * dsaCircumference;
+      dsaCircle.style.strokeDashoffset = dsaOffset;
+      document.getElementById('dsa-progress-text').textContent = dsaPercentage + '%';
+
+      const mlCircle = document.getElementById('ml-progress-circle');
+      const mlOffset = dsaCircumference - (mlPercentage / 100) * dsaCircumference;
+      mlCircle.style.strokeDashoffset = mlOffset;
+      document.getElementById('ml-progress-text').textContent = mlPercentage + '%';
+
+      const systemCircle = document.getElementById('system-progress-circle');
+      const systemOffset = dsaCircumference - (systemPercentage / 100) * dsaCircumference;
+      systemCircle.style.strokeDashoffset = systemOffset;
+      document.getElementById('system-progress-text').textContent = systemPercentage + '%';
+
+      const rewardBtn = document.getElementById('reward-btn');
+      const rewardStatus = document.getElementById('reward-status');
+
+      const rewardClaimedStatus = db.exec(`SELECT completed FROM progress WHERE user_id = ? AND task_id = 'reward_claimed'`, [currentUser.id]);
+      const rewardClaimed = rewardClaimedStatus.length > 0 && rewardClaimedStatus[0].values.length > 0 && rewardClaimedStatus[0].values[0][0] === 1;
+
+      rewardStatus.textContent = `DSA: ${dsaPercentage}% | ML: ${mlPercentage}% | System: ${systemPercentage}%`;
+
+      if (dsaPercentage === 100 && mlPercentage === 100 && systemPercentage === 100 && !rewardClaimed) {
+        document.getElementById('ultimate-reward-modal').classList.remove('hidden');
+      }
+
+      if (rewardClaimed) {
+        rewardBtn.textContent = 'Reward Claimed!';
+        rewardBtn.className = 'reward-btn claimed';
+        rewardBtn.disabled = true;
+      } else if (dsaPercentage === 100 && mlPercentage === 100 && systemPercentage === 100) {
+        rewardBtn.textContent = 'Claim Your Ultimate Reward!';
+        rewardBtn.disabled = false;
+      } else {
+        rewardBtn.textContent = 'Locked - Complete All Portals';
+        rewardBtn.disabled = true;
+      }
+    }
+
+    document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!currentUser) {
+          document.getElementById('auth-modal').classList.remove('hidden');
+          return;
+        }
+
+        const taskId = this.dataset.task;
+        const isCompleted = this.classList.contains('checked');
+
+        if (isCompleted) {
+          this.classList.remove('checked');
+          this.closest('.task-item').classList.remove('completed');
+          saveTaskProgress(taskId, false);
+        } else {
+          this.classList.add('checked');
+          this.closest('.task-item').classList.add('completed');
+          saveTaskProgress(taskId, true);
+        }
+
+        updateHomeTaskProgress();
+        updateProgress();
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initDatabase().then(() => {
+        currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (currentUser) {
+          showMainApp();
+        } else {
+          document.getElementById('auth-modal').classList.remove('hidden');
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        setInterval(() => {
+          if (currentUser) {
+            updateProgress();
+          }
+        }, 2000);
+      });
+
+      window.addEventListener('portalProgressUpdate', (e) => {
+        updateProgress();
+      });
+
+      window.addEventListener('storage', () => {
+        if (currentUser) {
+          updateProgress();
+          updateHomeTaskProgress();
+        }
+      });
+
+      document.getElementById('ultimate-reward-close-btn').addEventListener('click', () => {
+        document.getElementById('ultimate-reward-modal').classList.add('hidden');
+        saveTaskProgress('reward_claimed', true);
+        updateProgress();
+      });
+
+      document.getElementById('reward-btn').addEventListener('click', () => {
+        if (!currentUser) {
+          document.getElementById('auth-modal').classList.remove('hidden');
+          return;
+        }
+        if (document.getElementById('reward-btn').disabled) return;
+
+        document.getElementById('ultimate-reward-modal').classList.remove('hidden');
+      });
+    });
+  </script>
+</body>
+</html>

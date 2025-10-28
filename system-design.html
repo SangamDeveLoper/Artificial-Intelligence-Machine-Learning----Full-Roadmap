@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML System Design Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1419;
+      color: #ffffff;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
+      z-index: 0;
+    }
+
+    .bg-gradient::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .grid-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #8b5cf6;
+      transform: translateX(-5px);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .header h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+    }
+
+    .header h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      color: #8b92a8;
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      font-size: 1.1rem;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .section:hover {
+      border-color: rgba(139, 92, 246, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      cursor: pointer;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title svg {
+      width: 28px;
+      height: 28px;
+      stroke: #8b5cf6;
+    }
+
+    .section-progress {
+      font-size: 1.2rem;
+      color: #8b5cf6;
+      font-weight: 700;
+      background: rgba(139, 92, 246, 0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+    }
+
+    .topics {
+      display: grid;
+      gap: 12px;
+    }
+
+    .topic {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .topic:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(139, 92, 246, 0.3);
+      transform: translateX(5px);
+    }
+
+    .topic input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      margin-right: 15px;
+      cursor: pointer;
+      accent-color: #8b5cf6;
+    }
+
+    .topic label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 1.05rem;
+      color: #d1d5db;
+      line-height: 1.5;
+    }
+
+    .topic.completed {
+      opacity: 0.6;
+    }
+
+    .topic.completed label {
+      text-decoration: line-through;
+      color: #6b7280;
+    }
+
+    .user-info {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 1000;
+    }
+
+    .user-info.hidden {
+      display: none;
+    }
+
+    .user-info .username {
+      color: #8b5cf6;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      background: rgba(255, 70, 85, 0.2);
+      border: 1px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 70, 85, 0.3);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+      }
+
+      .section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="user-info hidden" id="user-info">
+    <span class="username" id="display-username"></span>
+    <button class="logout-btn" id="logout-btn">Logout</button>
+  </div>
+
+  <div class="container">
+    <button class="back-btn" onclick="window.location.href='index copy.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Hub
+    </button>
+
+    <div class="header">
+      <h1>ML System Design Portal</h1>
+      <p>Master System Design for MAANG AI/ML Roles</p>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="overall-progress">0%</div>
+    </div>
+
+    <div id="sections-container"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script>
+    let db = null;
+    let currentUser = null;
+
+    async function initDatabase() {
+      const SQL = await initSqlJs({
+        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+      });
+
+      const savedDb = localStorage.getItem('progressDB');
+      if (savedDb) {
+        const uint8Array = new Uint8Array(JSON.parse(savedDb));
+        db = new SQL.Database(uint8Array);
+      } else {
+        window.location.href = 'index copy.html';
+        return;
+      }
+    }
+
+    function saveDatabase() {
+      const data = db.export();
+      const buffer = Array.from(data);
+      localStorage.setItem('progressDB', JSON.stringify(buffer));
+    }
+
+    const systemDesignData = {
+      "Core Foundations": [
+        "Programming: Python, C++, or Java",
+        "Data structures: arrays, linked lists, trees, graphs",
+        "Algorithms: sorting, searching, dynamic programming",
+        "Networking: HTTP, REST, TCP/IP",
+        "Concurrency, threads, locks",
+        "SQL databases: Postgres/MySQL",
+        "NoSQL databases: MongoDB, DynamoDB"
+      ],
+      "ML Fundamentals": [
+        "Supervised learning: regression, classification",
+        "Decision trees, SVM",
+        "Unsupervised learning: clustering, PCA",
+        "Deep learning: CNNs, RNNs, Transformers",
+        "Evaluation metrics: accuracy, F1, AUC",
+        "Build end-to-end ML projects"
+      ],
+      "ML Lifecycle": [
+        "Data ingestion process",
+        "Data preprocessing",
+        "Model training",
+        "Model deployment",
+        "Model monitoring",
+        "MLflow for experiment tracking",
+        "Kubeflow for ML workflows",
+        "Airflow for orchestration"
+      ],
+      "Model Deployment": [
+        "REST APIs for inference",
+        "gRPC APIs for inference",
+        "Batch vs real-time inference",
+        "Docker containerization",
+        "Kubernetes orchestration",
+        "Deploy recommendation model at scale"
+      ],
+      "Feature Engineering & Storage": [
+        "Feature stores: Feast, Tecton",
+        "Data versioning: DVC, Delta Lake",
+        "Efficient feature retrieval",
+        "Real-time feature computation",
+        "Feature pipelines",
+        "Feature monitoring"
+      ],
+      "Scalability & Reliability": [
+        "Load balancing strategies",
+        "Caching mechanisms",
+        "Database sharding",
+        "Distributed training: PyTorch, TensorFlow",
+        "Horovod for distributed training",
+        "High availability design",
+        "Fault tolerance patterns"
+      ],
+      "Monitoring & Observability": [
+        "Model drift detection",
+        "Latency monitoring",
+        "Prometheus for metrics",
+        "Grafana for visualization",
+        "Seldon for model serving",
+        "A/B testing frameworks",
+        "Data quality monitoring"
+      ],
+      "Advanced Topics": [
+        "Real-time streaming: Kafka, Spark",
+        "Recommendation systems at scale",
+        "Large-scale NLP systems",
+        "Computer vision pipelines",
+        "Multi-tenant ML systems",
+        "Cost optimization strategies"
+      ],
+      "Cloud & MLOps": [
+        "AWS ML services",
+        "GCP ML services",
+        "Azure ML services",
+        "CI/CD for ML models",
+        "Auto-retraining pipelines",
+        "Infrastructure as Code",
+        "Cost-efficient architectures"
+      ],
+      "System Design Practice": [
+        "Design Netflix recommendation system",
+        "Design Amazon fraud detection",
+        "Design Google search ranking",
+        "Design Instagram feed ranking",
+        "Design Uber demand prediction",
+        "Design LinkedIn job recommendations",
+        "Design YouTube video recommendations"
+      ]
+    };
+
+    const sectionIcons = {
+      "Core Foundations": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>',
+      "ML Fundamentals": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>',
+      "ML Lifecycle": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path></svg>',
+      "Model Deployment": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>',
+      "Feature Engineering & Storage": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>',
+      "Scalability & Reliability": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"></path><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path></svg>',
+      "Monitoring & Observability": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>',
+      "Advanced Topics": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+      "Cloud & MLOps": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg>',
+      "System Design Practice": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>'
+    };
+
+    function initializeProgress() {
+      currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!currentUser) {
+        window.location.href = 'index copy.html';
+        return {};
+      }
+
+      document.getElementById('user-info').classList.remove('hidden');
+      document.getElementById('display-username').textContent = currentUser.username;
+
+      const progressKey = `user_${currentUser.id}_progress`;
+      const saved = localStorage.getItem(progressKey);
+      return saved ? JSON.parse(saved) : {};
+    }
+
+    let progress = initializeProgress();
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      window.location.href = 'index copy.html';
+    });
+
+    function saveProgress() {
+      if (!currentUser) return;
+
+      if (db) {
+        Object.keys(progress).forEach(topic => {
+          db.run(`INSERT OR REPLACE INTO progress (user_id, task_id, completed) VALUES (?, ?, ?)`,
+            [currentUser.id, topic, progress[topic] ? 1 : 0]);
+        });
+        saveDatabase();
+      }
+
+      const progressKey = `user_${currentUser.id}_progress`;
+      localStorage.setItem(progressKey, JSON.stringify(progress));
+      updateOverallProgress();
+
+      window.dispatchEvent(new Event('storage'));
+    }
+
+    function updateOverallProgress() {
+      let total = 0;
+      let completed = 0;
+
+      Object.keys(systemDesignData).forEach(section => {
+        systemDesignData[section].forEach(topic => {
+          total++;
+          if (progress[topic]) completed++;
+        });
+      });
+
+      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+      document.getElementById('overall-progress').style.width = percentage + '%';
+      document.getElementById('overall-progress').textContent = percentage + '%';
+
+      if (currentUser) {
+        localStorage.setItem(`portal_system_progress_${currentUser.id}`, JSON.stringify({
+          percentage,
+          completed,
+          total
+        }));
+      }
+
+      window.dispatchEvent(new CustomEvent('portalProgressUpdate', {
+        detail: { portal: 'system', percentage, completed, total }
+      }));
+    }
+
+    function playTaskCompleteSound() {
+      const sound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS57OihUBELTKXh8bllHAU2jdXvzn0vBSh+zPDajzsKElyx6OyrWBUIQ5zd8sFuJAUuhM/z24k2Bhxqu+zpoVARC0yl4fG5ZRwFNo3V7859LwUofsz');
+      sound.play().catch(e => console.log('Sound play failed:', e));
+    }
+
+    function renderSections() {
+      const container = document.getElementById('sections-container');
+      container.innerHTML = '';
+
+      Object.keys(systemDesignData).forEach((sectionName, index) => {
+        const section = document.createElement('div');
+        section.className = 'section';
+
+        const topics = systemDesignData[sectionName];
+        const completedCount = topics.filter(t => progress[t]).length;
+        const sectionProgress = `${completedCount}/${topics.length}`;
+
+        section.innerHTML = `
+          <div class="section-header">
+            <div class="section-title">
+              ${sectionIcons[sectionName] || ''}
+              ${sectionName}
+            </div>
+            <div class="section-progress">${sectionProgress}</div>
+          </div>
+          <div class="topics" id="topics-${index}"></div>
+        `;
+
+        container.appendChild(section);
+
+        const topicsContainer = document.getElementById(`topics-${index}`);
+        topics.forEach(topic => {
+          const topicDiv = document.createElement('div');
+          topicDiv.className = 'topic' + (progress[topic] ? ' completed' : '');
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = `topic-${topic}`;
+          checkbox.checked = progress[topic] || false;
+          checkbox.addEventListener('change', (e) => {
+            progress[topic] = e.target.checked;
+            if (e.target.checked) {
+              playTaskCompleteSound();
+            }
+            saveProgress();
+            renderSections();
+          });
+
+          const label = document.createElement('label');
+          label.htmlFor = `topic-${topic}`;
+          label.textContent = topic;
+
+          topicDiv.appendChild(checkbox);
+          topicDiv.appendChild(label);
+          topicsContainer.appendChild(topicDiv);
+        });
+      });
+    }
+
+    renderSections();
+    updateOverallProgress();
+
+    initDatabase();
+  </script>
+</body>
+</html>

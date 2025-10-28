@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Engineer Progress Tracker - Auth</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .auth-container {
+      max-width: 450px;
+      margin: 100px auto;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+    }
+
+    .auth-container h2 {
+      font-size: 2rem;
+      margin-bottom: 30px;
+      text-align: center;
+      background: linear-gradient(135deg, #ff4655 0%, #53e88b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #8b92a8;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #53e88b;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff4655, #ff7a85);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 70, 85, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+    }
+
+    .error-message {
+      background: rgba(255, 70, 85, 0.2);
+      border: 1px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .success-message {
+      background: rgba(83, 232, 139, 0.2);
+      border: 1px solid rgba(83, 232, 139, 0.5);
+      color: #53e88b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #ff4655 0%, #53e88b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .user-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .user-info .username {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #53e88b;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: rgba(255, 70, 85, 0.2);
+      border: 1px solid rgba(255, 70, 85, 0.5);
+      color: #ff4655;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 70, 85, 0.3);
+    }
+
+    .timer-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .timer-section h2 {
+      font-size: 1.5rem;
+      color: #8b92a8;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .timer-display {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff4655, #53e88b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    .timer-expired {
+      background: rgba(255, 215, 0, 0.2);
+      border: 1px solid rgba(255, 215, 0, 0.5);
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    .timer-expired h3 {
+      color: #ffd700;
+      margin-bottom: 15px;
+    }
+
+    .timer-expired input {
+      width: 100px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: white;
+      font-size: 1.2rem;
+      text-align: center;
+      margin: 0 10px;
+    }
+
+    .timer-expired button {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #0f1419;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .progress-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .progress-section h3 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #53e88b;
+    }
+
+    .task-list {
+      list-style: none;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .task-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(83, 232, 139, 0.3);
+    }
+
+    .task-item input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #53e88b;
+    }
+
+    .task-item label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 1.05rem;
+      color: #d1d5db;
+    }
+
+    .task-item.completed label {
+      text-decoration: line-through;
+      color: #6b7280;
+    }
+
+    .progress-bar-container {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      height: 30px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4655, #53e88b);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-card .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff4655, #53e88b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-card .stat-label {
+      color: #8b92a8;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .timer-display {
+        font-size: 2rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Container -->
+  <div id="auth-container" class="auth-container">
+    <h2>ML Engineer Progress Tracker</h2>
+    <div id="auth-message"></div>
+    
+    <!-- Login Form -->
+    <div id="login-form">
+      <div class="form-group">
+        <label for="login-username">Username</label>
+        <input type="text" id="login-username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter password">
+      </div>
+      <button class="btn" onclick="login()">Login</button>
+      <button class="btn btn-secondary" onclick="showSignup()">Create Account</button>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signup-form" class="hidden">
+      <div class="form-group">
+        <label for="signup-username">Username</label>
+        <input type="text" id="signup-username" placeholder="Choose username">
+      </div>
+      <div class="form-group">
+        <label for="signup-password">Password</label>
+        <input type="password" id="signup-password" placeholder="Choose password">
+      </div>
+      <div class="form-group">
+        <label for="signup-confirm">Confirm Password</label>
+        <input type="password" id="signup-confirm" placeholder="Confirm password">
+      </div>
+      <button class="btn" onclick="signup()">Create Account</button>
+      <button class="btn btn-secondary" onclick="showLogin()">Back to Login</button>
+    </div>
+  </div>
+
+  <!-- Main App Container -->
+  <div id="app-container" class="container hidden">
+    <div class="header">
+      <h1>ML Engineer Progress Tracker</h1>
+    </div>
+
+    <div class="user-info">
+      <div>
+        <div class="username" id="current-username"></div>
+        <div style="color: #8b92a8; font-size: 0.9rem; margin-top: 5px;">Member since: <span id="member-since"></span></div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Timer Section -->
+    <div class="timer-section">
+      <h2>Your Progress Timer</h2>
+      <div class="timer-display" id="timer-display">Loading...</div>
+      <div id="timer-expired-section" class="timer-expired hidden">
+        <h3>⏰ Timer Expired! Set Your Own Pace</h3>
+        <p style="color: #8b92a8; margin-bottom: 15px;">Enter the number of days you need to complete your goals:</p>
+        <div>
+          <input type="number" id="custom-days" min="1" max="3650" value="365" placeholder="Days">
+          <button onclick="setCustomTimer()">Set New Timer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="total-tasks">0</div>
+        <div class="stat-label">Total Tasks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="completed-tasks">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="completion-percentage">0%</div>
+        <div class="stat-label">Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="days-active">0</div>
+        <div class="stat-label">Days Active</div>
+      </div>
+    </div>
+
+    <!-- DSA Progress -->
+    <div class="progress-section">
+      <h3>📚 Data Structures & Algorithms</h3>
+      <ul class="task-list" id="dsa-tasks">
+        <li class="task-item">
+          <input type="checkbox" id="dsa-1" onchange="updateProgress('dsa', 1)">
+          <label for="dsa-1">Complete all data structure patterns</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="dsa-2" onchange="updateProgress('dsa', 2)">
+          <label for="dsa-2">Finish NeetCode Blind 75 and full roadmap</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="dsa-3" onchange="updateProgress('dsa', 3)">
+          <label for="dsa-3">Finish Take U Forward DSA sheet</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="dsa-4" onchange="updateProgress('dsa', 4)">
+          <label for="dsa-4">Do quick pattern revision and watch interview confidence boosts</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="dsa-5" onchange="updateProgress('dsa', 5)">
+          <label for="dsa-5">Finish Cracking the Coding Interview book</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="dsa-6" onchange="updateProgress('dsa', 6)">
+          <label for="dsa-6">Crack the MAANG MNC Interview</label>
+        </li>
+      </ul>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="dsa-progress-bar">0%</div>
+      </div>
+    </div>
+
+    <!-- ML Progress -->
+    <div class="progress-section">
+      <h3>🤖 Machine Learning Engineering</h3>
+      <ul class="task-list" id="ml-tasks">
+        <li class="task-item">
+          <input type="checkbox" id="ml-1" onchange="updateProgress('ml', 1)">
+          <label for="ml-1">Revise ML concepts with mathematics</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="ml-2" onchange="updateProgress('ml', 2)">
+          <label for="ml-2">Practice large set of math questions</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="ml-3" onchange="updateProgress('ml', 3)">
+          <label for="ml-3">Do project on specific domain</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="ml-4" onchange="updateProgress('ml', 4)">
+          <label for="ml-4">Do beginner machine learning projects</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="ml-5" onchange="updateProgress('ml', 5)">
+          <label for="ml-5">Do projects by yourself</label>
+        </li>
+        <li class="task-item">
+          <input type="checkbox" id="ml-6" onchange="updateProgress('ml', 6)">
+          <label for="ml-6">Build ultimate project for intern at MAANG</label>
+        </li>
+      </ul>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="ml-progress-bar">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.location.href = 'index.html';
+  </script>
+</body>
+</html>
